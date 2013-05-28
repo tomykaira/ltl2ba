@@ -4,6 +4,8 @@
 
 .PHONY: all install clean
 
+open build/OCaml
+
 ########################################################################
 # Subdirectories.
 # You may want to include some subdirectories in this project.
@@ -40,14 +42,15 @@ if $(not $(OCAMLFIND_EXISTS))
 #
 # OCAMLINCLUDES +=
 
+
 #
 # Compile native or byte code?
 #
 # The default values are defined as follows:
 #
-# NATIVE_ENABLED = $(OCAMLOPT_EXISTS)
-# BYTE_ENABLED = $(not $(OCAMLOPT_EXISTS))
-
+NATIVE_ENABLED = $(OCAMLOPT_EXISTS)
+BYTE_ENABLED = $(not $(OCAMLOPT_EXISTS))
+MENHIR_ENABLED = true
 #
 # Various options
 #
