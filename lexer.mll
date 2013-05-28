@@ -2,7 +2,7 @@
   open Parser
 }
 
-let space = [' ' '\t' '\n' '\r']
+let space = [' ' '\t']
 let digit = ['0'-'9']
 let alpha = ['A'-'Z' 'a'-'z' '_']
 let alnum = digit | alpha | '\''
@@ -10,6 +10,7 @@ let alnum = digit | alpha | '\''
 let prop = ['a'-'z']
 
 rule token = parse
+  | space+   { token lexbuf }           (* skip *)
   | prop     { PROP (Lexing.lexeme lexbuf) }
   | "top"    { TOP }
   | "bottom" { BOTTOM }
