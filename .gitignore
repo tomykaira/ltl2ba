@@ -9,5 +9,10 @@
 *.cmx
 *.cmxs
 *.cmxa
+*.opt
 
 lexer.ml
+parser.mli
+parser.ml
+
+ltl2ba
