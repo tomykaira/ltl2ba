@@ -25,3 +25,5 @@ rule token = parse
   | "G"      { GLOBALLY }
   | "U"      { UNTIL }
   | "R"      { RELEASE }
+
+  | '\n'     { EOL }

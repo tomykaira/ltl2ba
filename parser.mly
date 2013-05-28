@@ -15,11 +15,13 @@
 %token UNTIL
 %token RELEASE
 
+%token EOL
+
 %left UNTIL RELEASE
 %nonassoc NEXT FINALLY GLOBALLY
 %left AND OR
 %nonassoc NOT
-%left PROP TOP BOTTOM
+%nonassoc PROP TOP BOTTOM
 
 %start main
 %type <Syntax.ltl> main
@@ -27,7 +29,7 @@
 %%
 
 main:
-| exp
+| exp EOL
     { $1 }
 ;
 
@@ -41,9 +43,9 @@ exp:
 | NOT exp
     { Not $2 }
 | exp AND exp
-    { And $1 $3 }
+    { And ($1, $3) }
 | exp OR exp
-    { OR $1 $3 }
+    { Or ($1, $3) }
 
 | NEXT exp
     { Next $2 }
@@ -52,6 +54,6 @@ exp:
 | GLOBALLY exp
     { Globally $2 }
 | exp UNTIL exp
-    { Until $1 $3 }
+    { Until ($1, $3) }
 | exp RELEASE exp
-    { Release $1 $3 }
+    { Release ($1, $3) }
