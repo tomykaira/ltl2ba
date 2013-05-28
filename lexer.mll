@@ -11,6 +11,10 @@ let prop = ['a'-'z']
 
 rule token = parse
   | space+   { token lexbuf }           (* skip *)
+
+  | '('      { LPAREN }
+  | ')'      { RPAREN }
+
   | prop     { PROP (Lexing.lexeme lexbuf) }
   | "top"    { TOP }
   | "bottom" { BOTTOM }

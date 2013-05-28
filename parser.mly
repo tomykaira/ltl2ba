@@ -14,6 +14,8 @@
 %token GLOBALLY
 %token UNTIL
 %token RELEASE
+%token LPAREN
+%token RPAREN
 
 %token EOL
 
@@ -56,3 +58,6 @@ exp:
     { Until ($1, $3) }
 | exp RELEASE exp
     { Release ($1, $3) }
+
+| LPAREN exp RPAREN
+    { $2 }
