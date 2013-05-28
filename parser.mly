@@ -21,7 +21,6 @@
 %nonassoc NEXT FINALLY GLOBALLY
 %left AND OR
 %nonassoc NOT
-%nonassoc PROP TOP BOTTOM
 
 %start main
 %type <Syntax.ltl> main
