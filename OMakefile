@@ -79,6 +79,7 @@ FILES[] =
    parser
    lexer
    printer
+   graph
 #
 PROGRAM = ltl2ba
 # OCAML_LIBS +=
