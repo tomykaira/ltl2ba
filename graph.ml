@@ -2,8 +2,9 @@ type shape = DoubleCircle | Circle
 type graph_kind = DiGraph | Graph
 
 type node = {
-  name : string;
+  name  : string;
   shape : shape;
+  start : bool;
 }
 
 type edge = {
@@ -20,6 +21,27 @@ type graph = {
   edges    : edge list;
 }
 
+let new_graph title =
+  { kind = DiGraph; title = title; settings = []; nodes = []; edges = [] }
+
+let add_final graph name =
+  { graph with nodes = { name = name; shape = DoubleCircle; start = false } :: graph.nodes }
+
+let add_start graph name =
+  { graph with nodes = { name = name; shape = Circle; start = true } :: graph.nodes }
+
+let add_start_final graph name =
+  { graph with nodes = { name = name; shape = DoubleCircle; start = true } :: graph.nodes }
+
+let add_node graph name =
+  { graph with nodes = { name = name; shape = Circle; start = false } :: graph.nodes }
+
+let find_node {nodes = nodes} name =
+  List.find (fun n -> n.name = name) nodes
+
+let link graph s_name t_name label =
+  { graph with edges = { label = label; s = find_node graph s_name; t = find_node graph t_name } :: graph.edges}
+
 open Printf
 
 let graph_kind_to_string = function
@@ -33,7 +55,9 @@ let print_nodes nodes =
   printf ";\n";
   printf "\tnode [shape = circle]; ";
   List.iter (fun n -> printf "%s " n.name) circle;
-  printf ";\n"
+  printf ";\n";
+  let starts = List.find_all (fun n -> n.start) nodes in
+  List.iter (fun n -> printf "\t_nil_%s [style=\"invis\"];\n\t_nil_%s -> %s;\n" n.name n.name n.name) starts
 
 let print_edges =
   List.iter (fun e ->
