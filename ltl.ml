@@ -62,7 +62,10 @@ let epsilon_transform set =
     | _ -> failwith "reduced form given"
   in
   let (reduced, complex) = FormulaSet.partition is_reduced set in
-  let (formula, complex) = FormulaSet.pop complex in
-  let rest = FormulaSet.union reduced complex in
-  let transformed = apply_rule formula in
-  List.map (fun (set, cond) -> (FormulaSet.union set rest, cond)) transformed
+  if FormulaSet.is_empty complex then
+    None
+  else
+    let (formula, complex) = FormulaSet.pop complex in
+    let rest = FormulaSet.union reduced complex in
+    let transformed = apply_rule formula in
+    Some(List.map (fun (set, cond) -> (FormulaSet.union set rest, cond)) transformed)
