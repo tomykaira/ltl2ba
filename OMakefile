@@ -30,7 +30,7 @@ open build/OCaml
 USE_OCAMLFIND = true
 
 OCAMLPACKS[] =
-   ocamlgraph
+
 
 if $(not $(OCAMLFIND_EXISTS))
    eprintln(This project requires ocamlfind, but is was not found.)
