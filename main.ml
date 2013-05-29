@@ -1,4 +1,4 @@
-open Syntax
+open Ltl
 open Graph
 
 let graph_test =

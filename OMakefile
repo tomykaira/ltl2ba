@@ -75,11 +75,12 @@ OCamlGeneratedFiles(parser.ml lexer.ml)
 
 FILES[] =
    main
-   syntax
+   ltl
    parser
    lexer
    printer
    graph
+   extendedSet
 #
 PROGRAM = ltl2ba
 # OCAML_LIBS +=
