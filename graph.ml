@@ -24,20 +24,27 @@ type graph = {
 let new_graph title =
   { kind = DiGraph; title = title; settings = []; nodes = []; edges = [] }
 
-let add_final graph name =
-  { graph with nodes = { name = name; shape = DoubleCircle; start = false } :: graph.nodes }
-
-let add_start graph name =
-  { graph with nodes = { name = name; shape = Circle; start = true } :: graph.nodes }
-
-let add_start_final graph name =
-  { graph with nodes = { name = name; shape = DoubleCircle; start = true } :: graph.nodes }
-
-let add_node graph name =
-  { graph with nodes = { name = name; shape = Circle; start = false } :: graph.nodes }
-
 let find_node {nodes = nodes} name =
   List.find (fun n -> n.name = name) nodes
+
+let add_node_internal graph node =
+  try begin
+    ignore (find_node graph node.name);
+    graph
+  end with
+    | Not_found -> { graph with nodes = node :: graph.nodes }
+
+let add_final graph name =
+  add_node_internal graph { name = name; shape = DoubleCircle; start = false }
+
+let add_start graph name =
+  add_node_internal graph { name = name; shape = Circle; start = true }
+
+let add_start_final graph name =
+  add_node_internal graph { name = name; shape = DoubleCircle; start = true }
+
+let add_node graph name =
+  add_node_internal graph { name = name; shape = Circle; start = false }
 
 let link graph s_name t_name label =
   { graph with edges = { label = label; s = find_node graph s_name; t = find_node graph t_name } :: graph.edges}

@@ -1,36 +1,39 @@
 type link = Epsilon of Ltl.ltl option
             | Sigma of Ltl.ltl list * Ltl.ltl option
-type node = {
-  name: Ltl.FormulaSet.t;
-  edges: edge list;
-  start: bool;
-}
-and edge = {
+type state = Ltl.FormulaSet.t
+type transition = {
   link : link;
-  target: node;
+  s: state;
+  t: state;
+}
+type automaton = {
+  starts: state list;
+  finals: state list;
+  transitions: transition list;
 }
 
 (* known_states: add sigma_transformed states *)
-let rec reduction_graph  ?start:(start=true) known_states root_set =
-  let known_states = root_set :: known_states in
-  let is_known state = List.exists ((=) state) known_states in
-  let tail_state state = { name = state; edges = []; start = start } in
-  let edges = match Ltl.epsilon_transform root_set with
+let rec reduction_graph  transitions state =
+  let is_known trans = List.exists ((=) trans) transitions in
+  match Ltl.epsilon_transform state with
     | None ->
-      let (conds, next) = Ltl.sigma_transform root_set in
-      if is_known next then
-        [{ link = Sigma(conds, None); target = tail_state next }]
+      let (conds, next) = Ltl.sigma_transform state in
+      let trans = { link = Sigma(conds, None); s = state; t = next } in
+      if is_known trans then
+        transitions
       else
-        [{ link = Sigma(conds, None); target = reduction_graph known_states next ~start:false }]
+        reduction_graph (trans :: transitions) trans.t
     | Some(conv_list) ->
-      List.map (fun (set, cond) ->
-        if is_known set then
-          { link = Epsilon(cond); target = tail_state set }
+      List.fold_left (fun transitions (next, cond) ->
+        let trans = { link = Epsilon(cond); s = state; t = next } in
+        if is_known trans then
+          transitions
         else
-          { link = Epsilon(cond); target = reduction_graph known_states set ~start:false }
-      ) conv_list
-  in
-  { name = root_set; edges = edges; start = start }
+          reduction_graph (trans :: transitions) trans.t
+      ) transitions conv_list
+
+let construct_from start_state =
+  { starts = [start_state]; finals = []; transitions = reduction_graph [] start_state }
 
 let link_to_string link =
   let format_conds conds =
@@ -46,14 +49,13 @@ let link_to_string link =
 
 let to_graph automaton =
   let set_to_s = Ltl.FormulaSet.to_string in
-  let g = ref (Graph.new_graph "Automaton") in
-  let rec add_node node =
-    let s_name = (set_to_s node.name) in
-    g := (if node.start then Graph.add_start else Graph.add_node) !g s_name;
-    List.iter (fun {link = link; target = target} ->
-      add_node target;
-      g := Graph.link !g s_name (set_to_s target.name) (link_to_string link)
-    ) node.edges
-  in
-  add_node automaton;
-  !g
+  let g = (Graph.new_graph "Automaton") in
+  let is_start s = List.exists ((=) s) automaton.starts in
+  let add_node_function s = (if is_start s then Graph.add_start else Graph.add_node) in
+  List.fold_left (fun g { link = link; s = s; t = t } ->
+    let s_string = set_to_s s in
+    let t_string = set_to_s t in
+    let g = (add_node_function s) g s_string in
+    let g = (add_node_function t) g t_string in
+    Graph.link g s_string t_string (link_to_string link)
+  ) g automaton.transitions
