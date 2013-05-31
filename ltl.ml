@@ -51,6 +51,9 @@ module FormulaSet =
        end)
     include S_
 
+    (* avoid bug *)
+    let compare a b = Pervasives.compare (elements a) (elements b)
+
     let to_string set =
       let string_formulae = List.map to_string (elements set) in
       "{ " ^ (BatString.join ", " string_formulae) ^ "}"
