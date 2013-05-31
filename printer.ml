@@ -1,4 +1,4 @@
-open Syntax
+open Ltl
 
 let rec print_ltl exp =
   let print_paren exp =

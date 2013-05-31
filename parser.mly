@@ -1,5 +1,5 @@
 %{
-  open Syntax
+  open Ltl
 %}
 
 %token <string> PROP
@@ -25,7 +25,7 @@
 %nonassoc NOT
 
 %start main
-%type <Syntax.ltl> main
+%type <Ltl.ltl> main
 
 %%
 
