@@ -80,6 +80,7 @@ FILES[] =
    lexer
    graph
    extendedSet
+   automaton
 #
 PROGRAM = ltl2ba
 # OCAML_LIBS +=
