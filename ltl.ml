@@ -83,7 +83,7 @@ let epsilon_transform set =
                         (FormulaSet.singleton r, None)]
     | Release(l, r) -> [(FormulaSet.of_list [l; r], None);
                         (FormulaSet.of_list [r; Next(formula)], None)]
-    | Globally(p)   -> [(FormulaSet.of_list [p; Next(p)], None)]
+    | Globally(p)   -> [(FormulaSet.of_list [p; Next(formula)], None)]
     | Until(l, r)   -> [(FormulaSet.singleton r, None);
                         (FormulaSet.of_list [l; Next(formula)], Some(formula))]
     | Finally(p)    -> [(FormulaSet.singleton p, None);
@@ -98,3 +98,26 @@ let epsilon_transform set =
     let rest = FormulaSet.union reduced complex in
     let transformed = apply_rule formula in
     Some(List.map (fun (set, cond) -> (FormulaSet.union set rest, cond)) transformed)
+
+(*
+  calculate sigma transform condition and result set
+  input set should be reduced and consistent
+*)
+let sigma_transform set =
+  List.fold_left (fun (conds, next) -> function
+    | Top    -> (conds, next)
+    | Bottom -> failwith "inconsistent Bottom"
+    | Prop(p) ->
+      if List.exists (fun c -> c = Not(Prop(p))) conds then
+        failwith ("inconsistent " ^ p ^ " and not " ^ p)
+      else
+        (Prop(p) :: conds, next)
+    | Not(Prop(p)) ->
+      if List.exists (fun c -> c = Prop(p)) conds then
+        failwith ("inconsistent " ^ p ^ " and not " ^ p)
+      else
+        (Not(Prop(p)) :: conds, next)
+    | Next(x) ->
+      (conds, FormulaSet.add x next)
+    | other -> failwith ("not reduced " ^ to_string other)
+  ) ([], FormulaSet.empty) (FormulaSet.elements set)
