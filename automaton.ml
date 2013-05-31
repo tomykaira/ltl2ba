@@ -12,11 +12,11 @@ and edge = {
 let leaf_node set =
   { name = set; edges = [] }
 
-let reduction_graph root_set =
+let rec reduction_graph root_set =
   let edges = match Ltl.epsilon_transform root_set with
     | None -> []
     | Some(conv_list) ->
-      List.map (fun (set, cond) -> { link = Epsilon(cond); target = leaf_node set }) conv_list
+      List.map (fun (set, cond) -> { link = Epsilon(cond); target = reduction_graph set }) conv_list
   in
   { name = root_set; edges = edges }
 
@@ -31,11 +31,13 @@ let link_to_string = function
 let to_graph automaton =
   let set_to_s = Ltl.FormulaSet.to_string in
   let g = ref (Graph.new_graph "Automaton") in
-  let s_name = (set_to_s automaton.name) in
-  g := Graph.add_start !g s_name;
-  List.iter (fun {link = link; target = target} ->
-    let t_name = (set_to_s target.name) in
-    g := Graph.add_node !g t_name;
-    g := Graph.link !g s_name t_name (link_to_string link)
-  ) automaton.edges;
+  let rec add_node node =
+    let s_name = (set_to_s node.name) in
+    g := Graph.add_node !g s_name;
+    List.iter (fun {link = link; target = target} ->
+      add_node target;
+      g := Graph.link !g s_name (set_to_s target.name) (link_to_string link)
+    ) node.edges
+  in
+  add_node automaton;
   !g

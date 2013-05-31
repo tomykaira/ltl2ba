@@ -73,6 +73,7 @@ let is_reduced = function
   | Bottom       -> true
   | Prop(_)      -> true
   | Not(Prop(_)) -> true
+  | Next(_)      -> true
   | _            -> false
 
 let epsilon_transform set =
