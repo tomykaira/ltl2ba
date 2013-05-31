@@ -49,19 +49,22 @@ let graph_kind_to_string = function
   | Graph   -> "graph"
 
 let print_nodes nodes =
+  let print_node_list nodes =
+    if not (BatList.is_empty nodes) then
+      (List.iter (fun n -> printf "\"%s\" " n.name) nodes;
+       printf ";\n")
+  in
   let (circle, double) = List.partition (fun n -> n.shape = Circle) nodes in
   printf "\tnode [shape = doublecircle]; ";
-  List.iter (fun n -> printf "%s " n.name) double;
-  printf ";\n";
+  print_node_list double;
   printf "\tnode [shape = circle]; ";
-  List.iter (fun n -> printf "%s " n.name) circle;
-  printf ";\n";
+  print_node_list circle;
   let starts = List.find_all (fun n -> n.start) nodes in
-  List.iter (fun n -> printf "\t_nil_%s [style=\"invis\"];\n\t_nil_%s -> %s;\n" n.name n.name n.name) starts
+  List.iter (fun n -> printf "\t\"_nil_%s\" [style=\"invis\"];\n\t\"_nil_%s\" -> \"%s\";\n" n.name n.name n.name) starts
 
 let print_edges =
   List.iter (fun e ->
-    printf "\t%s -> %s [ label = \"%s\" ];\n" e.s.name e.t.name e.label
+    printf "\t\"%s\" -> \"%s\" [ label = \"%s\" ];\n" e.s.name e.t.name e.label
   )
 
 let print_graph { kind = kind; title = title; settings = settings; nodes = nodes; edges = edges } =
