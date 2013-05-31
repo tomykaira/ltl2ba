@@ -28,6 +28,20 @@ let rec to_string exp =
     | Until(l, r)    -> (print_paren l) ^ " U " ^ (print_paren r)
     | Release(l, r)  -> (print_paren l) ^ " R " ^ (print_paren r)
 
+let rec size_of exp =
+  match exp with
+    | Top
+    | Bottom
+    | Prop(_) -> 1
+    | Not(exp)
+    | Next(exp)
+    | Finally(exp)
+    | Globally(exp)  -> 1 + size_of exp
+    | And(l, r)
+    | Or(l, r)
+    | Until(l, r)
+    | Release(l, r)  -> 1 + max (size_of l) (size_of r)
+
 module FormulaSet =
   struct
     module S_ = ExtendedSet.Make
@@ -40,6 +54,16 @@ module FormulaSet =
     let to_string set =
       let string_formulae = List.map to_string (elements set) in
       "{ " ^ (BatString.join ", " string_formulae) ^ "}"
+
+    let pop_largest set =
+      let (_, largest) = List.fold_left (fun (size, value) formula ->
+        let this_size = size_of formula in
+        if size < this_size then
+          (this_size, formula)
+        else
+          (size, value)
+      ) (0, Bottom) (elements set) in
+      (largest, remove largest set)
   end
 
 
@@ -94,7 +118,7 @@ let epsilon_transform set =
   if FormulaSet.is_empty complex then
     None
   else
-    let (formula, complex) = FormulaSet.pop complex in
+    let (formula, complex) = FormulaSet.pop_largest complex in
     let rest = FormulaSet.union reduced complex in
     let transformed = apply_rule formula in
     Some(List.map (fun (set, cond) -> (FormulaSet.union set rest, cond)) transformed)
