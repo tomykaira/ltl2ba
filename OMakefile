@@ -30,7 +30,7 @@ open build/OCaml
 USE_OCAMLFIND = true
 
 OCAMLPACKS[] =
-
+	batteries
 
 if $(not $(OCAMLFIND_EXISTS))
    eprintln(This project requires ocamlfind, but is was not found.)
@@ -78,7 +78,6 @@ FILES[] =
    ltl
    parser
    lexer
-   printer
    graph
    extendedSet
 #

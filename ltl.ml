@@ -11,11 +11,39 @@ type ltl =
   | Until    of ltl * ltl
   | Release  of ltl * ltl
 
-module FormulaSet = ExtendedSet.Make
-  (struct
-    type t = ltl
-    let compare = compare
-   end)
+let rec to_string exp =
+  let print_paren exp =
+    "(" ^ (to_string exp) ^ ")"
+  in
+  match exp with
+    | Top            -> "⊤"
+    | Bottom         -> "⊥"
+    | Prop(p)        -> p
+    | Not(exp)       -> "¬" ^ (print_paren exp)
+    | And(l, r)      -> (print_paren l) ^ " ∧ " ^ (print_paren r)
+    | Or(l, r)       -> (print_paren l) ^ " ∨ " ^ (print_paren r)
+    | Next(exp)      -> "X " ^ (print_paren exp)
+    | Finally(exp)   -> "F " ^ (print_paren exp)
+    | Globally(exp)  -> "G " ^ (print_paren exp)
+    | Until(l, r)    -> (print_paren l) ^ " U " ^ (print_paren r)
+    | Release(l, r)  -> (print_paren l) ^ " R " ^ (print_paren r)
+
+module FormulaSet =
+  struct
+    module S_ = ExtendedSet.Make
+      (struct
+        type t = ltl
+        let compare = compare
+       end)
+    include S_
+
+    let to_string set =
+      let string_formulae = List.map to_string (elements set) in
+      "{ " ^ (BatString.join ", " string_formulae) ^ "}"
+  end
+
+
+
 
 let rec negative_normal_form formula = match formula with
   | Top | Bottom | Prop(_) -> formula
