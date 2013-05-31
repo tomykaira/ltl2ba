@@ -11,6 +11,8 @@
 *.cmxa
 *.opt
 
+*.png
+
 lexer.ml
 parser.mli
 parser.ml
