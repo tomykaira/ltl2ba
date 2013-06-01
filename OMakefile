@@ -2,7 +2,7 @@
 # Phony targets are scoped, so you probably want to declare them first.
 #
 
-.PHONY: all install clean
+.PHONY: all install clean distclean
 
 open build/OCaml
 
@@ -92,3 +92,6 @@ PROGRAM = ltl2ba
 
 clean:
    rm -f $(filter-proper-targets $(glob $(addsuffix .*, $(FILES)))) *.omc $(PROGRAM) $(PROGRAM).opt
+
+distclean: clean
+   rm -f .omakedb* *.png *.gv
