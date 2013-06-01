@@ -140,15 +140,9 @@ let sigma_transform set =
     | Top    -> (conds, next)
     | Bottom -> failwith "inconsistent Bottom"
     | Prop(p) ->
-      if List.exists (fun c -> c = Not(Prop(p))) conds then
-        failwith ("inconsistent " ^ p ^ " and not " ^ p)
-      else
-        (Prop(p) :: conds, next)
+      (Prop(p) :: conds, next)
     | Not(Prop(p)) ->
-      if List.exists (fun c -> c = Prop(p)) conds then
-        failwith ("inconsistent " ^ p ^ " and not " ^ p)
-      else
-        (Not(Prop(p)) :: conds, next)
+      (Not(Prop(p)) :: conds, next)
     | Next(x) ->
       (conds, FormulaSet.add x next)
     | other -> failwith ("not reduced " ^ to_string other)
