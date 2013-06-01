@@ -83,14 +83,6 @@ let to_graph automaton =
     Graph.link g s_string t_string (link_to_string link)
   ) g (TransitionSet.elements automaton.transitions)
 
-let name_counter = ref 0
-let snapshot automaton transition =
-  let file () =
-    name_counter := !name_counter + 1;
-    open_out_gen [Open_wronly; Open_creat; Open_trunc; Open_text] 0o666 (Printf.sprintf "t_%02d.gv" !name_counter)
-  in
-  Graph.print_graph (file ()) (to_graph { automaton with transitions = TransitionSet.of_list transition })
-
 let unique_postpones transitions =
   BatList.unique (List.fold_left (fun postponed { link = link } ->
     match link with
@@ -109,7 +101,6 @@ let skip_epsilons automaton =
   let postpones   = unique_postpones transitions in
   let transitions = setup_sigma_postpones postpones transitions in
   let rec skip transitions =
-    snapshot automaton transitions;
     let (epsilons, sigmas) = List.partition (fun t ->
       match t.link with
         | Epsilon(_) -> true | Sigma(_, _) -> false
