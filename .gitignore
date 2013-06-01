@@ -11,6 +11,7 @@
 *.cmxa
 *.opt
 
+*.gv
 *.png
 
 lexer.ml
