@@ -144,3 +144,41 @@ let skip_epsilons automaton =
           | _ -> failwith "unexpected non-epsilon value"
   in
   { automaton with transitions = TransitionSet.of_list (skip transitions) }
+
+let is_mergeable l r =
+  if l.s = r.s && l.t = r.t then
+    match (l.link, r.link) with
+      | (Epsilon(l_ps), Epsilon(r_ps))
+      | (Sigma(_, l_ps), Sigma(_, r_ps)) -> l_ps = r_ps
+      | _ -> false
+  else
+    false
+
+let merge_transitions l r =
+  let merged_link = match (l.link, r.link) with
+      | (Epsilon(_), Epsilon(_)) -> l.link
+      | (Sigma(l_cond, ps), Sigma(r_cond, _)) -> begin
+        match Ltl.calculate_or (Ltl.and_concat l_cond) (Ltl.and_concat r_cond) with
+          | Ltl.Top -> Sigma([], ps)
+          | prop -> Sigma([prop], ps)
+      end
+      | _ -> failwith (Printf.sprintf "Unable to merge %s with %s" (link_to_string l.link) (link_to_string r.link))
+  in
+  { l with link = merged_link }
+
+let merge_to_parallels transitions trans =
+  match List.find_all (is_mergeable trans) transitions with
+    | [] -> trans :: transitions
+    | merge_to :: _ ->
+      merge_transitions trans merge_to :: BatList.remove_all transitions merge_to
+
+let join_sigmas automaton =
+  let transitions = List.fold_left (fun transitions trans ->
+    merge_to_parallels transitions trans
+  ) [] (TransitionSet.elements automaton.transitions) in
+  { automaton with transitions = TransitionSet.of_list transitions }
+
+let construct_gba_from ltl_set =
+  join_sigmas
+    (skip_epsilons
+       (construct_from ltl_set))
