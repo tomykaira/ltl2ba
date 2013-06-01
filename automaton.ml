@@ -35,11 +35,11 @@ let link_to_string link =
     BatString.join " ∧ " (List.map Ltl.to_string conds)
   in
   match link with
-  | Epsilon(None) -> "ε"
-  | Epsilon(Some(formula)) -> "ε, !" ^ (Ltl.to_string(formula))
-  | Sigma([], None) -> "Σ"
-  | Sigma(conds, None) -> "Σ" ^ (format_conds conds)
-  | Sigma([], Some(post)) -> "Σ, !" ^ (Ltl.to_string(post))
+  | Epsilon(None)            -> "ε"
+  | Epsilon(Some(formula))   -> "ε, !" ^ (Ltl.to_string(formula))
+  | Sigma([], None)          -> "Σ"
+  | Sigma(conds, None)       -> "Σ" ^ (format_conds conds)
+  | Sigma([], Some(post))    -> "Σ, !" ^ (Ltl.to_string(post))
   | Sigma(conds, Some(post)) -> "Σ" ^ (format_conds conds) ^ ", !" ^ (Ltl.to_string(post))
 
 let transition_to_string { link = link; s = s; t = t } =
@@ -50,21 +50,21 @@ let rec reduction_graph transitions state =
   let is_known trans transitions =
     TransitionSet.exists (OrderedTransition.(=) trans) transitions
   in
+  let add_transition trans transitions =
+    if is_known trans transitions then
+      transitions
+    else
+      reduction_graph (TransitionSet.add trans transitions) trans.t
+  in
   match Ltl.epsilon_transform state with
     | None ->
       let (conds, next) = Ltl.sigma_transform state in
       let trans = { link = Sigma(conds, None); s = state; t = next } in
-      if is_known trans transitions then
-        transitions
-      else
-        reduction_graph (TransitionSet.add trans transitions) trans.t
+      add_transition trans transitions
     | Some(conv_list) ->
       List.fold_left (fun transitions (next, cond) ->
         let trans = { link = Epsilon(cond); s = state; t = next } in
-        if is_known trans transitions then
-          transitions
-        else
-          reduction_graph (TransitionSet.add trans transitions) trans.t
+        add_transition trans transitions
       ) transitions conv_list
 
 let construct_from start_state =
