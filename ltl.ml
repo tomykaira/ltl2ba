@@ -13,7 +13,11 @@ type ltl =
 
 let rec to_string exp =
   let print_paren exp =
-    "(" ^ (to_string exp) ^ ")"
+    match exp with
+      | Top | Bottom | Prop(_) | Not(_) | Next(_) | Finally(_) | Globally(_)
+          -> to_string exp
+      | _ -> "(" ^ (to_string exp) ^ ")"
+
   in
   match exp with
     | Top            -> "⊤"
