@@ -57,6 +57,7 @@ module FormulaSet =
 
     (* avoid bug *)
     let compare a b = Pervasives.compare (elements a) (elements b)
+    let (=) a b     = compare a b = 0
 
     let to_string set =
       let string_formulae = List.map to_string (elements set) in

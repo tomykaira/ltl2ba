@@ -16,4 +16,6 @@ module Make(Ord:Set.OrderedType) = struct
   let not_empty s = not (is_empty s)
 
   let map_list f s = List.map f (elements s)
+
+  let map f s = of_list (map_list f s)
 end

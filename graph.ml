@@ -55,28 +55,28 @@ let graph_kind_to_string = function
   | DiGraph -> "digraph"
   | Graph   -> "graph"
 
-let print_nodes nodes =
+let print_nodes out nodes =
   let print_node_list nodes =
     if not (BatList.is_empty nodes) then
-      (List.iter (fun n -> printf "\"%s\" " n.name) nodes;
-       printf ";\n")
+      (List.iter (fun n -> fprintf out "\"%s\" " n.name) nodes;
+       fprintf out ";\n")
   in
   let (circle, double) = List.partition (fun n -> n.shape = Circle) nodes in
-  printf "\tnode [shape = doublecircle]; ";
+  fprintf out "\tnode [shape = doublecircle]; ";
   print_node_list double;
-  printf "\tnode [shape = circle]; ";
+  fprintf out "\tnode [shape = circle]; ";
   print_node_list circle;
   let starts = List.find_all (fun n -> n.start) nodes in
-  List.iter (fun n -> printf "\t\"_nil_%s\" [style=\"invis\"];\n\t\"_nil_%s\" -> \"%s\";\n" n.name n.name n.name) starts
+  List.iter (fun n -> fprintf out "\t\"_nil_%s\" [style=\"invis\"];\n\t\"_nil_%s\" -> \"%s\";\n" n.name n.name n.name) starts
 
-let print_edges =
+let print_edges out =
   List.iter (fun e ->
-    printf "\t\"%s\" -> \"%s\" [ label = \"%s\" ];\n" e.s.name e.t.name e.label
+    fprintf out "\t\"%s\" -> \"%s\" [ label = \"%s\" ];\n" e.s.name e.t.name e.label
   )
 
-let print_graph { kind = kind; title = title; settings = settings; nodes = nodes; edges = edges } =
-  printf "%s %s {\n" (graph_kind_to_string kind) title;
-  List.iter (printf "\t%s\n") settings;
-  print_nodes nodes;
-  print_edges edges;
-  printf "}\n"
+let print_graph out { kind = kind; title = title; settings = settings; nodes = nodes; edges = edges } =
+  fprintf out "%s %s {\n" (graph_kind_to_string kind) title;
+  List.iter (fprintf out "\t%s\n") settings;
+  print_nodes out nodes;
+  print_edges out edges;
+  fprintf out "}\n"
