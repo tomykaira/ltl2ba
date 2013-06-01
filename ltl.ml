@@ -90,7 +90,7 @@ let rec negative_normal_form formula = match formula with
     match formula with
       | Top           -> Bottom
       | Bottom        -> Top
-      | Prop(_)       -> formula
+      | Prop(_)       -> Not(formula)
       | Not(p)        -> negative_normal_form p
       | And(l, r)     -> Or(negative_normal_form (Not l), negative_normal_form (Not r))
       | Or(l, r)      -> And(negative_normal_form (Not l), negative_normal_form (Not r))
